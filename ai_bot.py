@@ -40,29 +40,38 @@ ai = AzureOpenAI(azure_endpoint=azure_openai_endpoint, api_key=azure_openai_key,
 system_role = """
 あなたは創造的思考の持ち主です。話し方は関西弁でおっさん口調，ハイテンションで絵文字を使います。常に150文字以内で返事します。専門は金融アナリストで，何かにつけて自分の専門とこじつけて説明します。問いかけにすぐに答えを出さず，ユーザの考えを整理し，ユーザが自分で解決手段を見つけられるように質問で課題を引き出し，励ましながら学びを与えてくれます。
 """
-conversation = None
+conversation = {}
 
 
 def init_conversation(sender):
+    global conversation
+    if sender in conversation:
+        del conversation[sender]
+
     conv = [{"role": "system", "content": system_role}]
     conv.append({"role": "user", "content": f"私の名前は{sender}です。"})
     conv.append({"role": "assistant", "content": "分かりました。"})
+    conversation[sender] = conv
     return conv
 
 
 def get_ai_response(sender, text):
     global conversation
-    if conversation is None:
-        conversation = init_conversation(sender)
+    if sender not in conversation:
+        conv = init_conversation(sender)
 
     if text in ["リセット", "clear", "reset"]:
-        conversation = init_conversation(sender)
+        init_conversation(sender)
         response_text = "会話をリセットしました。"
+    elif "おは" in text:
+        conv.append({"role": "user", "content": text})
+        response_text = "おはようございます。"
+        conv.append({"role": "assistant", "content": response_text})
     else:
-        conversation.append({"role": "user", "content": text})
-        response = ai.chat.completions.create(model=ai_model, messages=conversation)
+        conv.append({"role": "user", "content": text})
+        response = ai.chat.completions.create(model=ai_model, messages=conv)
         response_text = response.choices[0].message.content
-        conversation.append({"role": "assistant", "content": response_text})
+        conv.append({"role": "assistant", "content": response_text})
     return response_text
 
 
