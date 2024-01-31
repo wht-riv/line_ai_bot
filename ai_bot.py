@@ -57,7 +57,9 @@ def init_conversation(sender):
 
 def get_ai_response(sender, text):
     global conversation
-    if sender not in conversation:
+    if sender in conversation:
+        conv = conversation[sender]
+    else:
         conv = init_conversation(sender)
 
     if text in ["リセット", "clear", "reset"]:
