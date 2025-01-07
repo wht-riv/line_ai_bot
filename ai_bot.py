@@ -27,7 +27,7 @@ azure_openai_model = os.getenv("AZURE_OPENAI_MODEL")
 
 if azure_openai_endpoint is None or azure_openai_api_key is None or azure_openai_api_version is None:
     raise Exception(
-        "Please set the environment variables AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_KEY to your Azure OpenAI endpoint and API key."
+        "Please set the environment variables AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, and AZURE_OPENAI_API_VERSION."
     )
 
 
@@ -35,8 +35,6 @@ handler = WebhookHandler(channel_secret)
 configuration = Configuration(access_token=channel_access_token)
 
 app = Flask(__name__)
-
-ai_model = azure_openai_model
 ai = AzureOpenAI(
     azure_endpoint=azure_openai_endpoint, api_key=azure_openai_api_key, api_version=azure_openai_api_version
 )
@@ -95,7 +93,7 @@ def get_ai_response(from_user, text):
 
     # AIのパラメータ
     parameters = {
-        "model": ai_model,  # AIモデル
+        "model": azure_openai_model,  # AIモデル
         "max_tokens": 100,  # 返信メッセージの最大トークン数
         "temperature": 0.5,  # 生成の多様性（0: 最も確実な回答、1: 最も多様な回答）
         "frequency_penalty": 0,  # 同じ単語を繰り返す頻度（0: 小さい）
