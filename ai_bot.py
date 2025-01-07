@@ -3,7 +3,7 @@ import sys
 
 from flask import Flask, request, abort
 
-from linebot import WebhookHandler
+from linebot.v3 import WebhookHandler
 
 from linebot.v3.webhooks import MessageEvent, TextMessageContent, UserSource
 from linebot.v3.messaging import Configuration, ApiClient, MessagingApi, TextMessage, ReplyMessageRequest
@@ -122,7 +122,7 @@ def get_ai_response(from_user, text):
 # 　返信メッセージを生成する関数
 def generate_response(from_user, text):
     res = []
-    if "リセット" in text or "初期化" in text or "クリア" in text:
+    if text in ["リセット", "初期化", "クリア", "reset", "clear"]:
         # チャット履歴を初期化
         init_chat_history()
         res = [TextMessage(text="チャットをリセットしました。")]
